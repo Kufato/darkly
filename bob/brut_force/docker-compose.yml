@@ -1,0 +1,7 @@
+services:
+  kali:
+    build: .
+    container_name: kali-lab
+    stdin_open: true
+    tty: true
+    network_mode: host
