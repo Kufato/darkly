@@ -1,16 +1,29 @@
-Pour cette clé il faut se concentrer dans le footer du site.
+# Récupération de la Clé — Redirection via le Footer
 
-Ici le but est de trouver que les 3 icones qui permettent une redirection sur les réseaux sociaux n'ont pas les urls des dits réseaux en dur mais passe par une redirection.
-En modifant simplement le site de refirection on récupère le flag.
+## 🔍 Méthode d'exploitation
 
-Pour s'en protéger il faut soit définir une liste de redirection possible dans le back du site :
+Pour cette clé, il faut se concentrer sur le **footer du site**.
 
+Le but est de trouver que les **3 icônes de redirection vers les réseaux sociaux** n'ont pas les URLs des réseaux en dur, mais passent par une **redirection dynamique**. En **modifiant simplement le site de redirection**, on récupère le flag.
+
+---
+
+## 🛡️ Recommandations
+
+Pour s'en protéger, deux approches sont possibles :
+
+### Option 1 — Définir une liste blanche de redirections dans le back
+
+```php
 $allowed = ['facebook', 'twitter', 'instagram'];
 if (in_array($_GET['site'], $allowed)) {
     $urls = ['facebook' => 'https://facebook.com', ...];
     header('Location: ' . $urls[$_GET['site']]);
 }
+```
 
-Ou bien écrire en dur les urls vers lesquels on redirige les users :
+### Option 2 — Écrire les URLs en dur dans le HTML
 
+```html
 <a href="https://facebook.com">...</a>
+```
