@@ -11,12 +11,3 @@ On envoie ces requetes via curl, et on guette le mot "flag".
 ## 🛡️ Recommandation
 
 Faire en sorte que l'admin ne s'appelle pas admin, mettre un mot de passe plus sécurisé, et bloquer les ip qui font beaucoup trop de requetes pour se connecter.
-
-# Récupération de la Clé — Page de Recovery
-
-## 🔍 Méthode d'exploitation
-
-
----
-
-## 🛡️ Recommandation
